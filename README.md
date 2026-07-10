@@ -37,7 +37,7 @@ The open-source build contains **no advertising code, cookies or analytics**.
 
 The browser tries two methods:
 
-1. `/<cdn-cgi>/trace` on the current host when Cloudflare provides it.
+1. `/cdn-cgi/trace` on the current host when Cloudflare provides it.
 2. `https://api.ipify.org` as a fallback.
 
 This means the browser may contact Cloudflare or ipify to obtain the public IP. Review or replace these providers before deploying in an environment with stricter privacy requirements.
