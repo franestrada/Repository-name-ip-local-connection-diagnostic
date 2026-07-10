@@ -1,0 +1,1223 @@
+<!doctype html>
+<!-- Open-source build of the ip-local.com connection diagnostic. Analytics removed. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Open-source connection diagnostic for IT support</title>
+  <meta name="description" content="A self-hostable, privacy-friendly browser connection diagnostic for help desks, technicians and IT support teams.">
+  <meta name="robots" content="index,follow">
+<meta property="og:locale" content="en_US">
+<meta property="og:description" content="Copy or download a simple connection diagnostic with public IP, browser, system, language, time zone and screen details. Free, no ads, no cookies.">
+<meta property="og:site_name" content="ip-local.com">
+<meta name="twitter:title" content="Connection diagnostic for IT support | ip-local.com">
+<link rel="alternate" hreflang="es" href="https://ip-local.com/es/diagnostico-conexion/" />
+<link rel="alternate" hreflang="de" href="https://ip-local.com/de/verbindungsdiagnose/" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0c">
+  <meta name="theme-color" id="themeColor" content="#ffffff">
+<style>
+    :root{
+      color-scheme: light dark;
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#6e6e73;
+      --line:#ededf0;
+      --panel:#ffffff;
+      --panel-soft:rgba(110,110,115,.05);
+      --focus:rgba(0,0,0,.18);
+      --btn-border:rgba(0,0,0,.08);
+      --btn-border-hover:rgba(0,0,0,.12);
+      --btn-bg:#ffffff;
+      --shadow:0 1px 0 rgba(0,0,0,.03);
+      --code-bg:#fbfbfd;
+      --sh1:#f6f6fa;
+      --sh2:#efeff5;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b0b0c;
+        --text:#f5f5f7;
+        --muted:#a1a1a6;
+        --line:rgba(255,255,255,.10);
+        --panel:rgba(255,255,255,.035);
+        --panel-soft:rgba(255,255,255,.04);
+        --focus:rgba(255,255,255,.22);
+        --btn-border:rgba(255,255,255,.14);
+        --btn-border-hover:rgba(255,255,255,.22);
+        --btn-bg:rgba(255,255,255,.03);
+        --shadow:0 1px 0 rgba(255,255,255,.03);
+        --code-bg:rgba(255,255,255,.04);
+        --sh1:rgba(255,255,255,.06);
+        --sh2:rgba(255,255,255,.035);
+      }
+    }
+
+    :root[data-theme="light"]{
+      color-scheme: light;
+      --bg:#ffffff;
+      --text:#111111;
+      --muted:#6e6e73;
+      --line:#ededf0;
+      --panel:#ffffff;
+      --panel-soft:rgba(110,110,115,.05);
+      --focus:rgba(0,0,0,.18);
+      --btn-border:rgba(0,0,0,.08);
+      --btn-border-hover:rgba(0,0,0,.12);
+      --btn-bg:#ffffff;
+      --shadow:0 1px 0 rgba(0,0,0,.03);
+      --code-bg:#fbfbfd;
+      --sh1:#f6f6fa;
+      --sh2:#efeff5;
+    }
+
+    :root[data-theme="dark"]{
+      color-scheme: dark;
+      --bg:#0b0b0c;
+      --text:#f5f5f7;
+      --muted:#a1a1a6;
+      --line:rgba(255,255,255,.10);
+      --panel:rgba(255,255,255,.035);
+      --panel-soft:rgba(255,255,255,.04);
+      --focus:rgba(255,255,255,.22);
+      --btn-border:rgba(255,255,255,.14);
+      --btn-border-hover:rgba(255,255,255,.22);
+      --btn-bg:rgba(255,255,255,.03);
+      --shadow:0 1px 0 rgba(255,255,255,.03);
+      --code-bg:rgba(255,255,255,.04);
+      --sh1:rgba(255,255,255,.06);
+      --sh2:rgba(255,255,255,.035);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      scroll-behavior:smooth;
+    }
+
+    body{
+      display:flex;
+      justify-content:center;
+      padding:24px;
+      padding-left:max(16px, env(safe-area-inset-left));
+      padding-right:max(16px, env(safe-area-inset-right));
+      padding-top:max(16px, env(safe-area-inset-top));
+      padding-bottom:max(16px, env(safe-area-inset-bottom));
+    }
+
+    a{color:inherit;text-decoration:none}
+    a:hover{opacity:.86}
+    .hidden{display:none !important}
+
+    main{
+      width:100%;
+      max-width:860px;
+      padding-top:24px;
+      padding-bottom:84px;
+      text-align:center;
+    }
+
+    .header{
+      position:relative;
+      z-index:20;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      padding:10px 2px 0;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:2px;
+      line-height:1.2;
+      padding-top:7px;
+    }
+
+    .brandName{
+      font-size:13px;
+      font-weight:650;
+      letter-spacing:.01em;
+      color:var(--text);
+    }
+
+    .brandTag{
+      font-size:12.5px;
+      color:var(--muted);
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      position:relative;
+      z-index:30;
+    }
+
+    .langWrap{
+      position:relative;
+      z-index:999;
+      display:flex;
+      align-items:center;
+    }
+
+    .langBtn,
+    .themeBtn{
+      height:44px;
+      border-radius:999px;
+      border:1px solid var(--btn-border);
+      background:var(--btn-bg);
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .08s ease, border-color .12s ease, background .12s ease, color .12s ease;
+    }
+
+    .langBtn:hover,
+    .themeBtn:hover{
+      border-color:var(--btn-border-hover);
+      color:var(--text);
+    }
+
+    .langBtn:active,
+    .themeBtn:active{transform:scale(.98)}
+
+    .langBtn:focus-visible,
+    .themeBtn:focus-visible{
+      outline:none;
+      box-shadow:0 0 0 4px var(--focus);
+    }
+
+    .langBtn{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 14px;
+      font-size:12.8px;
+      font-weight:650;
+    }
+
+    .langPill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .langName{display:inline-block;line-height:1}
+
+    .langFlag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:12.6px;
+      border-radius:999px;
+      overflow:hidden;
+      flex:0 0 auto;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+      background:rgba(110,110,115,.08);
+    }
+
+    :root[data-theme="dark"] .langFlag{
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme]) .langFlag{
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+        background:rgba(255,255,255,.06);
+      }
+    }
+
+    .flagIcon{display:block;width:100%;height:100%}
+    .langChevron{width:14px;height:14px;opacity:.75}
+
+    .langMenu{
+      position:absolute;
+      right:0;
+      top:58px;
+      min-width:210px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.12);
+      padding:8px;
+      text-align:left;
+      z-index:1000;
+    }
+
+    :root[data-theme="dark"] .langMenu{
+      background:#0b0b0c;
+      border-color:rgba(255,255,255,.16);
+      box-shadow:0 18px 60px rgba(0,0,0,.65);
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme]) .langMenu{
+        background:#0b0b0c;
+        border-color:rgba(255,255,255,.16);
+        box-shadow:0 18px 60px rgba(0,0,0,.65);
+      }
+    }
+
+    .langMenuLabel{
+      padding:6px 10px 8px;
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    .langItem{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 10px;
+      font-size:13.5px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .langItemLeft{display:inline-flex;align-items:center;gap:12px}
+    .langItem:hover{background:rgba(110,110,115,.08)}
+    :root[data-theme="dark"] .langItem:hover{background:rgba(255,255,255,.06)}
+    .langItem[aria-current="true"]{font-weight:700}
+
+    .themeBtn{width:44px;display:grid;place-items:center}
+    .themeIcon{display:grid;place-items:center;width:18px;height:18px}
+    .iconSun,.iconMoon{
+      grid-area:1/1;
+      opacity:0;
+      transform:scale(.96);
+      transition:opacity .12s ease, transform .12s ease;
+    }
+    .themeBtn[data-mode="light"] .iconSun{opacity:1;transform:scale(1)}
+    .themeBtn[data-mode="dark"] .iconMoon{opacity:1;transform:scale(1)}
+
+    .topRule{margin:18px 0 0;border-top:1px solid var(--line)}
+    .topSpacer{height:clamp(48px,7vh,84px)}
+
+    .eyebrow{
+      margin:0 auto 10px;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      line-height:1.5;
+      max-width:72ch;
+    }
+
+    .pageTitle{
+      margin:0 auto 12px;
+      font-size:32px;
+      font-weight:760;
+      letter-spacing:-0.02em;
+      line-height:1.12;
+      max-width:20ch;
+    }
+
+    .heroLead{
+      margin:0 auto 16px;
+      font-size:15.5px;
+      color:var(--muted);
+      line-height:1.78;
+      max-width:64ch;
+    }
+
+    .sectionIntro{
+      margin:0 0 16px;
+      font-size:15px;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .ipActions{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .btn,.linkBtn{
+      appearance:none;
+      min-height:42px;
+      border:1px solid var(--btn-border);
+      background:var(--btn-bg);
+      color:var(--muted);
+      border-radius:999px;
+      padding:9px 14px;
+      font-size:12.8px;
+      font-weight:650;
+      cursor:pointer;
+      transition:transform .08s ease, opacity .08s ease, color .12s ease, border-color .12s ease, background .12s ease;
+      -webkit-tap-highlight-color:transparent;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .btn:hover,.linkBtn:hover{
+      color:var(--text);
+      border-color:var(--btn-border-hover);
+      opacity:1;
+    }
+
+    .btn:active,.linkBtn:active{transform:scale(.98)}
+    .btn:focus-visible,.linkBtn:focus-visible{
+      outline:none;
+      box-shadow:0 0 0 4px var(--focus);
+    }
+    .btn:disabled{opacity:.45;cursor:default}
+
+    .stack{
+      max-width:760px;
+      margin:28px auto 0;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      text-align:left;
+    }
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      padding:20px 20px 18px;
+    }
+
+    .panelSoft{background:var(--panel-soft)}
+
+    .panelLabel{
+      margin:0 0 8px;
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .panelTitle{
+      margin:0 0 8px;
+      font-size:24px;
+      letter-spacing:-.015em;
+      line-height:1.2;
+    }
+
+    .panelText{
+      margin:0;
+      font-size:15px;
+      color:var(--muted);
+      line-height:1.8;
+      max-width:62ch;
+    }
+
+    .ipBox{
+      text-align:center;
+      padding-top:24px;
+      padding-bottom:24px;
+    }
+
+    .ipLabel{
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:18px 0 14px;
+      line-height:1.5;
+    }
+
+    .ip{
+      display:inline-block;
+      font-size:clamp(40px,7vw,64px);
+      font-weight:700;
+      line-height:1.08;
+      margin:0;
+      word-break:break-word;
+      letter-spacing:-0.02em;
+      cursor:pointer;
+      user-select:text;
+      outline:none;
+      border-radius:14px;
+      padding:2px 8px;
+    }
+
+    .ip:focus-visible{box-shadow:0 0 0 4px var(--focus)}
+
+    .ip.loading{
+      position:relative;
+      color:transparent;
+      cursor:default;
+      user-select:none;
+    }
+
+    .ip.loading::after{
+      content:"";
+      display:inline-block;
+      width:min(360px, 76vw);
+      height:0.82em;
+      border-radius:12px;
+      background:linear-gradient(90deg, var(--sh1) 0%, var(--sh2) 50%, var(--sh1) 100%);
+      background-size:200% 100%;
+      animation:shimmer 1.05s linear infinite;
+      vertical-align:middle;
+    }
+
+    @keyframes shimmer{
+      0%{background-position:0% 0}
+      100%{background-position:200% 0}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .ip.loading::after{animation:none}
+      .toast{transition:none}
+    }
+
+    .diagnosticGrid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      text-align:left;
+    }
+
+    .detail{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px 13px;
+      background:var(--panel);
+      min-width:0;
+    }
+
+    .detail.full{grid-column:1 / -1}
+    .detailLabel{
+      display:block;
+      font-size:11px;
+      line-height:1.4;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:5px;
+    }
+
+    .detailValue{
+      display:block;
+      font-size:13.8px;
+      line-height:1.55;
+      color:var(--text);
+      overflow-wrap:anywhere;
+    }
+
+    .code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:13px;
+    }
+
+    .retryWrap{
+      margin-top:10px;
+      min-height:22px;
+      display:flex;
+      justify-content:center;
+    }
+
+    .retryBtn{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      font-size:12.8px;
+      text-decoration:underline;
+      text-decoration-color:rgba(110,110,115,.35);
+      text-underline-offset:3px;
+      cursor:pointer;
+      padding:0;
+    }
+
+    .steps{
+      margin:14px 0 0;
+      padding-left:20px;
+      color:var(--muted);
+      font-size:14.5px;
+      line-height:1.8;
+    }
+
+    .steps strong{color:var(--text)}
+
+    .faqList{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .faqItem{
+      border-top:1px solid var(--line);
+      padding-top:12px;
+    }
+
+    .faqItem:first-child{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .faqItem strong{
+      display:block;
+      font-size:14px;
+      line-height:1.45;
+      margin-bottom:4px;
+      color:var(--text);
+    }
+
+    .faqItem p{
+      margin:0;
+      font-size:14px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+
+    footer{
+      margin-top:44px;
+      padding-top:18px;
+      padding-bottom:26px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.8;
+    }
+
+    .footnav{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .footnav a{
+      color:var(--muted);
+      text-decoration:underline;
+      text-decoration-color:rgba(110,110,115,.35);
+      text-underline-offset:3px;
+      opacity:.92;
+    }
+
+    .footnav a:hover{opacity:1}
+    .footdecl{color:var(--muted);opacity:.62;user-select:none;text-decoration:none}
+    .sep{color:var(--muted);opacity:.55;user-select:none}
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(8px);
+      opacity:0;
+      pointer-events:none;
+      padding:9px 12px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:999px;
+      color:var(--text);
+      font-size:13px;
+      font-weight:600;
+      transition:opacity .18s ease, transform .18s ease;
+      max-width:92vw;
+      white-space:nowrap;
+      z-index:2000;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 560px){
+      .header{align-items:flex-end;gap:10px}
+      .actions{gap:8px}
+      .pageTitle{font-size:27px;max-width:18ch}
+      .heroLead,.panelText,.sectionIntro{font-size:14.5px;line-height:1.72}
+      .diagnosticGrid{grid-template-columns:1fr}
+    }
+
+    @media (max-width: 430px){
+      main{padding-top:12px}
+      .topSpacer{height:28px}
+      .brandTag{font-size:12px}
+      .langBtn{padding:0 12px}
+      .panel{padding:18px 16px 16px}
+      .footnav{gap:8px}
+    }
+  </style>
+</head>
+
+<body>
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <symbol id="flag-es" viewBox="0 0 20 14"><rect width="20" height="14" fill="#AA151B"/><rect y="3" width="20" height="8" fill="#F1BF00"/></symbol>
+      <symbol id="flag-fr" viewBox="0 0 20 14"><rect width="20" height="14" fill="#FFFFFF"/><rect width="6.67" height="14" fill="#0055A4"/><rect x="13.33" width="6.67" height="14" fill="#EF4135"/></symbol>
+      <symbol id="flag-de" viewBox="0 0 20 14"><rect width="20" height="14" fill="#000000"/><rect y="4.67" width="20" height="4.67" fill="#DD0000"/><rect y="9.34" width="20" height="4.66" fill="#FFCE00"/></symbol>
+      <symbol id="flag-en" viewBox="0 0 20 14"><rect width="20" height="14" fill="#012169"/><path d="M0 0 20 14M20 0 0 14" stroke="#FFFFFF" stroke-width="3"/><path d="M0 0 20 14M20 0 0 14" stroke="#C8102E" stroke-width="1.5"/><path d="M10 0v14M0 7h20" stroke="#FFFFFF" stroke-width="5"/><path d="M10 0v14M0 7h20" stroke="#C8102E" stroke-width="3"/></symbol>
+    </defs>
+  </svg>
+
+  <main>
+    <header class="header">
+      <div class="brand" aria-label="ip-local.com">
+        <div class="brandName"><a href="https://ip-local.com/">ip-local.com</a></div>
+        <div class="brandTag">No ads · No cookies</div>
+      </div>
+
+      <div class="actions" aria-label="Actions">
+        <div class="langWrap">
+          <button class="langBtn" id="langBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="langMenu" title="Change language">
+            <span class="langPill" id="langPill">
+              <span class="langFlag" aria-hidden="true"><svg class="flagIcon" viewBox="0 0 20 14" focusable="false"><use href="#flag-en"></use></svg></span>
+              <span class="langName">English</span>
+            </span>
+            <svg class="langChevron" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+
+          <div class="langMenu hidden" id="langMenu" role="menu" aria-label="Change language">
+            <div class="langMenuLabel">Change language</div>
+            <a class="langItem" data-hreflang="en" role="menuitem" href="https://ip-local.com/en/connection-diagnostic/" aria-current="true">
+              <span class="langItemLeft">
+                <span class="langFlag" aria-hidden="true"><svg class="flagIcon" viewBox="0 0 20 14" focusable="false"><use href="#flag-en"></use></svg></span>
+                <span>English</span>
+              </span>
+              <span>EN</span>
+            </a>
+            <a class="langItem" data-hreflang="es" role="menuitem" href="https://ip-local.com/es/diagnostico-conexion/" aria-current="false">
+              <span class="langItemLeft">
+                <span class="langFlag" aria-hidden="true"><svg class="flagIcon" viewBox="0 0 20 14" focusable="false"><use href="#flag-es"></use></svg></span>
+                <span>Español</span>
+              </span>
+              <span>ES</span>
+            </a>
+            <a class="langItem" data-hreflang="fr" role="menuitem" href="https://ip-local.com/fr/diagnostic-connexion/" aria-current="false">
+              <span class="langItemLeft">
+                <span class="langFlag" aria-hidden="true"><svg class="flagIcon" viewBox="0 0 20 14" focusable="false"><use href="#flag-fr"></use></svg></span>
+                <span>Français</span>
+              </span>
+              <span>FR</span>
+            </a>
+            <a class="langItem" data-hreflang="de" role="menuitem" href="https://ip-local.com/de/verbindungsdiagnose/" aria-current="false">
+              <span class="langItemLeft">
+                <span class="langFlag" aria-hidden="true"><svg class="flagIcon" viewBox="0 0 20 14" focusable="false"><use href="#flag-de"></use></svg></span>
+                <span>Deutsch</span>
+              </span>
+              <span>DE</span>
+            </a>
+          </div>
+        </div>
+
+        <button class="themeBtn" id="themeBtn" type="button" title="Theme" aria-label="Switch to dark mode">
+          <span class="themeIcon" aria-hidden="true">
+            <svg class="iconSun" viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg class="iconMoon" viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M21 13.2A7.5 7.5 0 1 1 10.8 3a6.5 6.5 0 0 0 10.2 10.2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <div class="topRule" aria-hidden="true"></div>
+    <div class="topSpacer" aria-hidden="true"></div>
+
+    <p class="eyebrow">Connection diagnostic</p>
+    <h1 class="pageTitle">Connection diagnostic for support</h1>
+    <p class="heroLead">Copy or download a simple connection diagnostic to send to your technician, help desk or IT support. Self-hostable, with no login, ads, cookies or analytics.</p>
+    <p class="sectionIntro" style="max-width:64ch;margin:0 auto 12px;">This tool checks your public IP and adds useful browser, system, language, time zone and screen details. Your local IP cannot usually be detected automatically by a normal browser, so the diagnostic includes a clear note and a link to the guides.</p>
+
+    <div class="ipActions" aria-label="Main actions" style="justify-content:center; margin-bottom:8px;">
+      <button class="btn" id="copyDiagnosticTopBtn" type="button" disabled>Copy diagnostic</button>
+      <button class="btn" id="downloadDiagnosticTopBtn" type="button" disabled>Download .txt</button>
+      <a class="linkBtn" href="https://ip-local.com/en/guides/">Find local IP manually</a>
+    </div>
+
+    <section class="stack" aria-label="Your connection details">
+      <section class="panel ipBox" aria-labelledby="diagnostic-title">
+        <p class="panelLabel">Diagnostic</p>
+        <h2 class="panelTitle" id="diagnostic-title">Your connection details</h2>
+        <p class="panelText" style="margin:0 auto 14px; max-width:58ch;">Use these details when someone asks you to send basic network information.</p>
+
+        <p class="ipLabel">Public IP</p>
+        <div id="ip" class="ip loading" aria-live="polite" role="button" tabindex="0" aria-label="Your public IP. Tap to copy.">Detecting…</div>
+
+        <div class="ipActions" aria-label="Your connection details">
+          <button class="btn" id="copyBtn" type="button" disabled>Copy public IP</button>
+          <button class="btn" id="copyDiagnosticBtn" type="button" disabled>Copy diagnostic</button>
+          <button class="btn" id="downloadDiagnosticBtn" type="button" disabled>Download .txt</button>
+          <a class="linkBtn" href="https://ip-local.com/what-is-my-ip/">Public IP details</a>
+        </div>
+
+        <div class="retryWrap" aria-live="polite">
+          <button class="retryBtn hidden" id="retryBtn" type="button">Try again</button>
+        </div>
+
+        <div class="diagnosticGrid" aria-label="Your connection details">
+          <div class="detail"><span class="detailLabel">Browser</span><span class="detailValue" id="browserValue">Not detected</span></div>
+          <div class="detail"><span class="detailLabel">System</span><span class="detailValue" id="systemValue">Not detected</span></div>
+          <div class="detail"><span class="detailLabel">Language</span><span class="detailValue" id="languageValue">Not detected</span></div>
+          <div class="detail"><span class="detailLabel">Time zone</span><span class="detailValue" id="timezoneValue">Not detected</span></div>
+          <div class="detail"><span class="detailLabel">Screen</span><span class="detailValue" id="screenValue">Not detected</span></div>
+          <div class="detail"><span class="detailLabel">Viewport</span><span class="detailValue" id="viewportValue">Not detected</span></div>
+          <div class="detail full"><span class="detailLabel">Local IP</span><span class="detailValue">Not detected automatically by the browser</span></div>
+          <div class="detail full"><span class="detailLabel">User agent</span><span class="detailValue code" id="userAgentValue">Not detected</span></div>
+        </div>
+      </section>
+
+      <section class="panel panelSoft" aria-labelledby="support-title">
+        <p class="panelLabel">For support teams</p>
+        <h2 class="panelTitle" id="support-title">Ask the user to send this diagnostic</h2>
+        <p class="panelText">Tell the user to open this page, copy the diagnostic and paste it into the support ticket. It gives you the public IP, browser, device context and a clean timestamp in one block.</p>
+        <h3 class="panelTitle" style="font-size:18px;margin-top:16px;">How to use it</h3>
+        <ol class="steps">
+          <li>Open this page on the affected device.</li>
+          <li>Wait until the public IP appears.</li>
+          <li>Copy or download the diagnostic.</li>
+          <li>Send it to your technician or support team.</li>
+        </ol>
+      </section>
+
+      <section class="panel" aria-labelledby="privacy-title">
+        <p class="panelLabel">Privacy note</p>
+        <h2 class="panelTitle" id="privacy-title">Simple by design</h2>
+        <p class="panelText">The diagnostic is generated in your browser. To retrieve the public IP, this build first tries the site’s Cloudflare trace endpoint and otherwise calls api.ipify.org. It contains no advertising or analytics code and does not ask for your name, email, password or precise location.</p>
+      </section>
+
+      <section class="panel panelSoft" aria-labelledby="faq-title">
+        <p class="panelLabel">Quick answers</p>
+        <h2 class="panelTitle" id="faq-title">Common questions</h2>
+        <div class="faqList">
+          <div class="faqItem"><strong>Does this show my local IP?</strong><p>No. A normal browser usually cannot detect your local IP automatically. Use the device guides if you need the private address inside your network.</p></div>
+          <div class="faqItem"><strong>What is this useful for?</strong><p>It is useful when a technician asks for basic connection data before troubleshooting a router, VPN, firewall, access or browser problem.</p></div>
+          <div class="faqItem"><strong>Can I share this safely?</strong><p>Share it only with people or support teams you trust. A public IP and user agent are technical details, but they still describe your connection.</p></div>
+        </div>
+      </section>
+    </section>
+
+    <footer aria-label="Privacy and legal">
+      <nav class="footnav" aria-label="Privacy and legal">
+        <a href="https://ip-local.com/en/privacy-terms/">Privacy and legal</a>
+        <span class="sep" aria-hidden="true">|</span>
+        <span class="footdecl">No ads, no cookies</span>
+        <span class="sep" aria-hidden="true">|</span>
+        <a href="https://ip-local.com/en/contact/">Contact</a>
+        <span class="sep" aria-hidden="true">|</span>
+        <a href="https://github.com/ip-local/ip-local-connection-diagnostic">Source code</a>
+      </nav>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function initTheme(){
+      const key = "theme";
+      const root = document.documentElement;
+      const btn = document.getElementById("themeBtn");
+      const metaTheme = document.getElementById("themeColor");
+
+      function systemPrefersDark(){
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+
+      function setThemeColor(mode){
+        if(metaTheme) metaTheme.setAttribute("content", mode === "dark" ? "#0b0b0c" : "#ffffff");
+      }
+
+      function apply(mode){
+        root.dataset.theme = mode;
+        if(btn){
+          btn.dataset.mode = mode;
+          btn.setAttribute("aria-label", mode === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        }
+        setThemeColor(mode);
+      }
+
+      let mode = localStorage.getItem(key);
+      if(mode !== "light" && mode !== "dark"){
+        mode = systemPrefersDark() ? "dark" : "light";
+        localStorage.setItem(key, mode);
+      }
+      apply(mode);
+
+      if(btn){
+        btn.addEventListener("click", () => {
+          const current = localStorage.getItem(key) === "dark" ? "dark" : "light";
+          const next = current === "dark" ? "light" : "dark";
+          localStorage.setItem(key, next);
+          apply(next);
+        });
+      }
+    })();
+
+    (function langSelector(){
+      const btn = document.getElementById("langBtn");
+      const menu = document.getElementById("langMenu");
+
+      const fallbackMap = {
+        en: "https://ip-local.com/en/connection-diagnostic/",
+        es: "https://ip-local.com/es/diagnostico-conexion/",
+        fr: "https://ip-local.com/fr/diagnostic-connexion/",
+        de: "https://ip-local.com/de/verbindungsdiagnose/"
+      };
+
+      const pillMap = {
+        en: { name: "English", flag: "#flag-en" },
+        es: { name: "Español", flag: "#flag-es" },
+        fr: { name: "Français", flag: "#flag-fr" },
+        de: { name: "Deutsch", flag: "#flag-de" }
+      };
+
+      (function syncLangMenu(){
+        if(!menu) return;
+
+        const cur = (document.documentElement.lang || "en").toLowerCase();
+        const pill = document.getElementById("langPill");
+        const pillName = pill ? pill.querySelector(".langName") : null;
+        const pillFlagUse = pill ? pill.querySelector("use") : null;
+
+        if(pillName) pillName.textContent = (pillMap[cur] && pillMap[cur].name) || "Language";
+        if(pillFlagUse){
+          const flagId = (pillMap[cur] && pillMap[cur].flag) || "#flag-en";
+          pillFlagUse.setAttribute("href", flagId);
+          pillFlagUse.setAttribute("xlink:href", flagId);
+        }
+
+        const map = {};
+        document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(l => {
+          const hl = (l.getAttribute("hreflang") || "").toLowerCase();
+          const href = l.getAttribute("href");
+          if(hl && href) map[hl] = href;
+        });
+
+        menu.querySelectorAll('a.langItem[data-hreflang]').forEach(a => {
+          const hl = (a.dataset.hreflang || "").toLowerCase();
+          a.setAttribute("href", map[hl] || fallbackMap[hl] || "/");
+          a.setAttribute("aria-current", hl === cur ? "true" : "false");
+        });
+      })();
+
+      function closeMenu(){
+        if(!menu || !btn) return;
+        menu.classList.add("hidden");
+        btn.setAttribute("aria-expanded","false");
+      }
+
+      function toggleMenu(){
+        if(!menu || !btn) return;
+        const nowHidden = menu.classList.toggle("hidden");
+        btn.setAttribute("aria-expanded", nowHidden ? "false" : "true");
+      }
+
+      if(btn) btn.addEventListener("click", toggleMenu);
+
+      document.addEventListener("click", (e) => {
+        if(!menu || !btn) return;
+        if(menu.classList.contains("hidden")) return;
+        const within = menu.contains(e.target) || btn.contains(e.target);
+        if(!within) closeMenu();
+      }, { passive:true });
+
+      document.addEventListener("keydown", (e) => {
+        if(e.key === "Escape") closeMenu();
+      });
+    })();
+
+    const ipEl = document.getElementById("ip");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyDiagnosticBtn = document.getElementById("copyDiagnosticBtn");
+    const downloadDiagnosticBtn = document.getElementById("downloadDiagnosticBtn");
+    const copyDiagnosticTopBtn = document.getElementById("copyDiagnosticTopBtn");
+    const downloadDiagnosticTopBtn = document.getElementById("downloadDiagnosticTopBtn");
+    const retryBtn = document.getElementById("retryBtn");
+    const toast = document.getElementById("toast");
+
+    const browserValue = document.getElementById("browserValue");
+    const systemValue = document.getElementById("systemValue");
+    const languageValue = document.getElementById("languageValue");
+    const timezoneValue = document.getElementById("timezoneValue");
+    const screenValue = document.getElementById("screenValue");
+    const viewportValue = document.getElementById("viewportValue");
+    const userAgentValue = document.getElementById("userAgentValue");
+
+    let toastTimer = null;
+
+    function track(){ /* Analytics intentionally omitted from the open-source build. */ }
+
+    function showToast(message){
+      if(!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1200);
+    }
+
+    function getBrowserName(){
+      const ua = navigator.userAgent || "";
+      if(ua.includes("Edg/")) return "Microsoft Edge";
+      if(ua.includes("OPR/") || ua.includes("Opera")) return "Opera";
+      if(ua.includes("Firefox/")) return "Firefox";
+      if(ua.includes("Chrome/") && !ua.includes("Chromium")) return "Chrome";
+      if(ua.includes("Safari/") && !ua.includes("Chrome/")) return "Safari";
+      return "Not detected";
+    }
+
+    function getPlatformName(){
+      if(navigator.userAgentData && navigator.userAgentData.platform){
+        return navigator.userAgentData.platform;
+      }
+      return navigator.platform || "Not detected";
+    }
+
+    function getLanguage(){
+      return navigator.language || (navigator.languages && navigator.languages[0]) || "Not detected";
+    }
+
+    function getTimeZone(){
+      try{
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || "Not detected";
+      }catch(e){
+        return "Not detected";
+      }
+    }
+
+    function getScreenSize(){
+      if(!window.screen) return "Not detected";
+      return `${window.screen.width} × ${window.screen.height}`;
+    }
+
+    function getViewportSize(){
+      return `${window.innerWidth} × ${window.innerHeight}`;
+    }
+
+    function updateClientDetails(){
+      if(browserValue) browserValue.textContent = getBrowserName();
+      if(systemValue) systemValue.textContent = getPlatformName();
+      if(languageValue) languageValue.textContent = getLanguage();
+      if(timezoneValue) timezoneValue.textContent = getTimeZone();
+      if(screenValue) screenValue.textContent = getScreenSize();
+      if(viewportValue) viewportValue.textContent = getViewportSize();
+      if(userAgentValue) userAgentValue.textContent = navigator.userAgent || "Not detected";
+    }
+
+    window.addEventListener("resize", () => {
+      if(viewportValue) viewportValue.textContent = getViewportSize();
+    }, { passive:true });
+
+    function setCopyEnabled(ip){
+      const ok = !!ip && ip !== "Unavailable";
+      const targets = [copyBtn, copyDiagnosticBtn, downloadDiagnosticBtn, copyDiagnosticTopBtn, downloadDiagnosticTopBtn];
+      targets.forEach(btn => {
+        if(btn){
+          btn.disabled = !ok;
+          btn.dataset.ip = ok ? ip : "";
+        }
+      });
+      if(ipEl){
+        ipEl.dataset.ip = ok ? ip : "";
+        ipEl.setAttribute("aria-label", ok ? `Public IP: ${ip}` : "Unavailable");
+      }
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        return true;
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try{
+          const ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+          return ok;
+        }catch(err){
+          document.body.removeChild(ta);
+          return false;
+        }
+      }
+    }
+
+    function buildSupportDiagnostic(ip){
+      const now = new Date();
+      const pageUrl = window.location.href || "https://ip-local.com/en/connection-diagnostic/";
+      const ua = navigator.userAgent || "Not detected";
+
+      return [
+        "Connection diagnostic",
+        "",
+        `Public IP: ${ip || "Unavailable"}`,
+        "Local IP: not detected automatically by the browser. Use the device guide to find it.",
+        `Browser: ${getBrowserName()}`,
+        `System: ${getPlatformName()}`,
+        `Language: ${getLanguage()}`,
+        `Time zone: ${getTimeZone()}`,
+        `Screen: ${getScreenSize()}`,
+        `Viewport: ${getViewportSize()}`,
+        `Date: ${now.toLocaleString("en-US")}`,
+        `Checked page: ${pageUrl}`,
+        "Guides to find the local IP: https://ip-local.com/en/guides/",
+        `User agent: ${ua}`,
+        "",
+        "Generated by ip-local.com"
+      ].join("\n");
+    }
+
+    async function doCopy(){
+      const ip = ((ipEl && ipEl.dataset.ip) || (copyBtn && copyBtn.dataset.ip) || "").trim();
+      if(!ip) return;
+      const ok = await copyText(ip);
+      track("copy_ip");
+      showToast(ok ? "Copied" : "Could not copy");
+    }
+
+    async function doDiagnosticCopy(){
+      const ip = ((ipEl && ipEl.dataset.ip) || "").trim();
+      if(!ip) return;
+      const ok = await copyText(buildSupportDiagnostic(ip));
+      track("copy_diagnostic");
+      showToast(ok ? "Diagnostic copied" : "Could not copy");
+    }
+
+    function downloadDiagnostic(){
+      const ip = ((ipEl && ipEl.dataset.ip) || "").trim();
+      if(!ip) return;
+      const blob = new Blob([buildSupportDiagnostic(ip)], { type:"text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ip-local-connection-diagnostic.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      track("download_diagnostic");
+      showToast("Diagnostic downloaded");
+    }
+
+    if(copyBtn) copyBtn.addEventListener("click", doCopy);
+    if(copyDiagnosticBtn) copyDiagnosticBtn.addEventListener("click", doDiagnosticCopy);
+    if(copyDiagnosticTopBtn) copyDiagnosticTopBtn.addEventListener("click", doDiagnosticCopy);
+    if(downloadDiagnosticBtn) downloadDiagnosticBtn.addEventListener("click", downloadDiagnostic);
+    if(downloadDiagnosticTopBtn) downloadDiagnosticTopBtn.addEventListener("click", downloadDiagnostic);
+
+    if(ipEl){
+      ipEl.addEventListener("click", () => {
+        if(ipEl.classList.contains("loading")) return;
+        doCopy();
+      });
+
+      ipEl.addEventListener("keydown", (e) => {
+        if(ipEl.classList.contains("loading")) return;
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          doCopy();
+        }
+      });
+    }
+
+    function setLoading(on){
+      if(!ipEl) return;
+      if(on){
+        ipEl.classList.add("loading");
+        ipEl.textContent = "Detecting…";
+        if(retryBtn) retryBtn.classList.add("hidden");
+        setCopyEnabled("");
+      }else{
+        ipEl.classList.remove("loading");
+      }
+    }
+
+    async function fetchIp(){
+      if(!ipEl) return;
+      setLoading(true);
+
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 2200);
+
+      try{
+        if(!/^https?:$/.test(window.location.protocol)){
+          throw new Error("Cloudflare trace unavailable outside HTTP(S)");
+        }
+        const r = await fetch("/cdn-cgi/trace", { cache: "no-store", signal: controller.signal });
+        if(!r.ok) throw new Error("Cloudflare trace unavailable");
+        const txt = await r.text();
+        const m = txt.match(/^ip=(.+)$/m);
+        const ip = (m && m[1]) ? m[1].trim() : "";
+
+        clearTimeout(t);
+        if(!ip) throw new Error("No IP in trace");
+
+        setLoading(false);
+        ipEl.textContent = ip;
+        setCopyEnabled(ip);
+      }catch(_){
+        clearTimeout(t);
+
+        try{
+          const fallbackController = new AbortController();
+          const fallbackTimer = setTimeout(() => fallbackController.abort(), 3500);
+          const r2 = await fetch("https://api.ipify.org", {
+            cache: "no-store",
+            signal: fallbackController.signal
+          });
+          clearTimeout(fallbackTimer);
+          if(!r2.ok) throw new Error("Public IP service unavailable");
+          const ip2 = (await r2.text()).trim();
+
+          setLoading(false);
+          ipEl.textContent = ip2 || "Unavailable";
+          setCopyEnabled(ip2);
+
+          if(!ip2 && retryBtn) retryBtn.classList.remove("hidden");
+        }catch(e2){
+          setLoading(false);
+          ipEl.textContent = "Unavailable";
+          setCopyEnabled("Unavailable");
+          if(retryBtn) retryBtn.classList.remove("hidden");
+        }
+      }
+    }
+
+    if(retryBtn){
+      retryBtn.addEventListener("click", () => {
+        showToast("Trying again…");
+        fetchIp();
+      });
+    }
+
+    updateClientDetails();
+
+    (async () => {
+      await fetchIp();
+      if(ipEl && ipEl.textContent === "Unavailable"){
+        setTimeout(fetchIp, 650);
+      }
+    })();
+  </script>
+</body>
+</html>
